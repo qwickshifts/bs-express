@@ -1,5 +1,4 @@
-type complete; 
-
+type complete;
 
 /** abstract type which ensure middleware function must either
      call the [next] function or one of the [send] function on the
@@ -11,10 +10,10 @@ module Error: {
   type t = exn;
 
   /** Error type */
-  [@bs.send] [@bs.return null_undefined_to_opt]
-  external message: Js_exn.t => option(string) = "message";
-  [@bs.send] [@bs.return null_undefined_to_opt]
-  external name: Js_exn.t => option(string) = "name";
+  [@mel.send] [@mel.return null_undefined_to_opt]
+  external message: Js.Exn.t => option(string) = "message";
+  [@mel.send] [@mel.return null_undefined_to_opt]
+  external name: Js.Exn.t => option(string) = "name";
 };
 
 module Request: {
@@ -23,7 +22,8 @@ module Request: {
 
   /** [params request] return the JSON object filled with the
        request parameters */
-  [@bs.get] external params: t => params = "params";
+  [@mel.get]
+  external params: t => params = "params";
 
   /** [asJsonObject request] casts a [request] to a JSON object. It is
        common in Express application to use the Request object as a
@@ -32,19 +32,20 @@ module Request: {
   external asJsonObject: t => Js.Dict.t(Js.Json.t) = "%identity";
 
   /** [baseUrl request] returns the 'baseUrl' property */
-  [@bs.get] external baseUrl: t => string = "baseUrl";
+  [@mel.get]
+  external baseUrl: t => string = "baseUrl";
 
   /** When using the json body-parser middleware and receiving a request with a
        content type of "application/json", this property is a Js.Json.t that
        contains the body sent by the request. */
-  [@bs.get] [@bs.return null_undefined_to_opt]
+  [@mel.get] [@mel.return null_undefined_to_opt]
   external bodyJSON: t => option(Js.Json.t) = "body";
 
   /** When using the raw body-parser middleware and receiving a request with a
        content type of "application/octet-stream", this property is a
        Node_buffer.t that contains the body sent by the request. */
-  [@bs.get] [@bs.return null_undefined_to_opt]
-  external bodyRaw: t => option(Node_buffer.t) = "body";
+  [@mel.get] [@mel.return null_undefined_to_opt]
+  external bodyRaw: t => option(Node.Buffer.t) = "body";
 
   /** When using the text body-parser middleware and receiving a request with a
        content type of "text/plain", this property is a string that
@@ -59,7 +60,7 @@ module Request: {
   /** When using cookie-parser middleware, this property is an object
        that contains cookies sent by the request. If the request contains
        no cookies, it defaults to {}.*/
-  [@bs.get] [@bs.return null_undefined_to_opt]
+  [@mel.get] [@mel.return null_undefined_to_opt]
   external cookies: t => option(Js.Dict.t(Js.Json.t)) = "cookies";
 
   /** When using cookie-parser middleware, this property contains signed cookies
@@ -69,25 +70,31 @@ module Request: {
        Note that signing a cookie does not make it “hidden” or encrypted;
        but simply prevents tampering (because the secret used to
        sign is private). */
-  [@bs.get] [@bs.return null_undefined_to_opt]
-  external signedCookies: t => option(Js.Dict.t(Js.Json.t)) = "signedCookies";
+  [@mel.get] [@mel.return null_undefined_to_opt]
+  external signedCookies: t => option(Js.Dict.t(Js.Json.t)) =
+    "signedCookies";
 
   /** [hostname request] Contains the hostname derived from the Host
        HTTP header. */
-  [@bs.get] external hostname: t => string = "hostname";
+  [@mel.get]
+  external hostname: t => string = "hostname";
 
   /** [ip request] Contains the remote IP address of the request. */
-  [@bs.get] external ip: t => string = "ip";
+  [@mel.get]
+  external ip: t => string = "ip";
 
   /** [fresh request] returns [true] whether the request is "fresh" */
-  [@bs.get] external fresh: t => bool = "fresh";
+  [@mel.get]
+  external fresh: t => bool = "fresh";
 
   /** [stale request] returns [true] whether the request is "stale" */
-  [@bs.get] external stale: t => bool = "stale";
+  [@mel.get]
+  external stale: t => bool = "stale";
 
   /** [method_ request] return a string corresponding to the HTTP
        method of the request: GET, POST, PUT, and so on */
-  [@bs.get] external methodRaw: t => string = "method";
+  [@mel.get]
+  external methodRaw: t => string = "method";
   type httpMethod =
     | Get
     | Post
@@ -105,10 +112,12 @@ module Request: {
 
   /** [originalUrl request] returns the original url. See
        https://expressjs.com/en/4x/api.html#req.originalUrl */
-  [@bs.get] external originalUrl: t => string = "originalUrl";
+  [@mel.get]
+  external originalUrl: t => string = "originalUrl";
 
   /** [path request] returns the path part of the request URL. */
-  [@bs.get] external path: t => string = "path";
+  [@mel.get]
+  external path: t => string = "path";
   type protocol =
     | Http
     | Https;
@@ -118,12 +127,14 @@ module Request: {
   let protocol: t => protocol;
 
   /** [secure request] returns [true] if a TLS connection is established */
-  [@bs.get] external secure: t => bool = "secure";
+  [@mel.get]
+  external secure: t => bool = "secure";
 
   /** [query request] returns an object containing a property for each
        query string parameter in the route. If there is no query string,
        it returns the empty object, {} */
-  [@bs.get] external query: t => Js.Dict.t(Js.Json.t) = "query";
+  [@mel.get]
+  external query: t => Js.Dict.t(Js.Json.t) = "query";
 
   /** [acceptsRaw accepts types] checks if the specified content types
        are acceptable, based on the request's Accept HTTP header field.
@@ -134,19 +145,20 @@ module Request: {
 
   /** [get return field] returns the specified HTTP request header
        field (case-insensitive match) */
-  [@bs.send.pipe: t] [@bs.return null_undefined_to_opt]
+  [@mel.send.pipe: t] [@mel.return null_undefined_to_opt]
   external get: string => option(string) = "get";
 
   /** [xhr request] returns [true] if the request’s X-Requested-With
        header field is "XMLHttpRequest", indicating that the request was
        issued by a client library such as jQuery */
-  [@bs.get] external xhr: t => bool = "xhr";
+  [@mel.get]
+  external xhr: t => bool = "xhr";
 };
 
 module Response: {
   type t;
   module StatusCode: {
-    [@bs.deriving jsConverter]
+    [@deriving jsConverter]
     type t =
       | Ok
       | Created
@@ -241,26 +253,27 @@ module Response: {
     ) =>
     t;
 
-  [@bs.send.pipe: t] external sendFile: (string, 'a) => complete = "sendFile";
-  [@bs.send.pipe: t] external sendString: string => complete = "send";
-  [@bs.send.pipe: t] external sendJson: Js.Json.t => complete = "json";
-  [@bs.send.pipe: t] external sendBuffer: Node.Buffer.t => complete = "send";
-  [@bs.send.pipe: t] external sendArray: array('a) => complete = "send";
-  [@bs.send.pipe: t] external sendRawStatus: int => complete = "sendStatus";
+  [@mel.send.pipe: t] external sendFile: (string, 'a) => complete = "sendFile";
+  [@mel.send.pipe: t] external sendString: string => complete = "send";
+  [@mel.send.pipe: t] external sendJson: Js.Json.t => complete = "json";
+  [@mel.send.pipe: t] external sendBuffer: Node.Buffer.t => complete = "send";
+  [@mel.send.pipe: t] external sendArray: array('a) => complete = "send";
+  [@mel.send.pipe: t] external sendRawStatus: int => complete = "sendStatus";
   let sendStatus: (StatusCode.t, t) => complete;
-  [@bs.send.pipe: t] external rawStatus: int => t = "status";
+  [@mel.send.pipe: t] external rawStatus: int => t = "status";
   let status: (StatusCode.t, t) => t;
-  
-  [@bs.send.pipe: t] [@ocaml.deprecated "Use sendJson instead`"]
+
+  [@mel.send.pipe: t] [@ocaml.deprecated "Use sendJson instead`"]
   external json: Js.Json.t => complete = "json";
-  [@bs.send.pipe: t]
+  [@mel.send.pipe: t]
   external redirectCode: (int, string) => complete = "redirect";
-  [@bs.send.pipe: t] external redirect: string => complete = "redirect";
-  [@bs.send.pipe: t] external setHeader: (string, string) => t = "set";
-  [@bs.send.pipe: t] external setType: string => t = "type";
-  [@bs.send.pipe: t] external setLinks: Js.Dict.t(string) => t = "links";
-  [@bs.send.pipe: t] external end_: complete = "end";
-  [@bs.send.pipe: t] external render: (string, Js.Dict.t(string), 'a) => complete = "render";
+  [@mel.send.pipe: t] external redirect: string => complete = "redirect";
+  [@mel.send.pipe: t] external setHeader: (string, string) => t = "set";
+  [@mel.send.pipe: t] external setType: string => t = "type";
+  [@mel.send.pipe: t] external setLinks: Js.Dict.t(string) => t = "links";
+  [@mel.send.pipe: t] external end_: complete = "end";
+  [@mel.send.pipe: t]
+  external render: (string, Js.Dict.t(string), 'a) => complete = "render";
 };
 
 module Next: {
@@ -366,7 +379,9 @@ module type Routable = {
   let deleteWithMany: (t, ~path: string, array(Middleware.t)) => unit;
 };
 
-module MakeBindFunctions: (T: {type t;}) => Routable with type t = T.t;
+module MakeBindFunctions: (T: {
+                             type t;
+                           }) => Routable with type t = T.t;
 
 module Router: {
   include Routable;
@@ -377,10 +392,17 @@ module Router: {
 
 module HttpServer: {
   type t;
-  [@bs.send] external on: (t, [@bs.string] [
-    | `request((Request.t, Response.t) => unit)
-    | `close(unit => unit)
-  ]) => unit = "on";
+  [@mel.send]
+  external on:
+    (
+      t,
+      [@mel.string] [
+        | `request((Request.t, Response.t) => unit)
+        | `close(unit => unit)
+      ]
+    ) =>
+    unit =
+    "on";
 };
 
 let router:
@@ -391,7 +413,7 @@ module App: {
   include Routable;
   let useRouter: (t, Router.t) => unit;
   let useRouterOnPath: (t, ~path: string, Router.t) => unit;
-  [@bs.module] external make: unit => t = "express";
+  [@mel.module] external make: unit => t = "express";
   external asMiddleware: t => Middleware.t = "%identity";
   let listen:
     (
@@ -402,10 +424,9 @@ module App: {
       unit
     ) =>
     HttpServer.t;
-  [@bs.send] external disable: (t, ~name: string) => unit = "disable";
-  [@bs.send] external set: (t, string, string) => unit = "set";
+  [@mel.send] external disable: (t, ~name: string) => unit = "disable";
+  [@mel.send] external set: (t, string, string) => unit = "set";
 };
-
 
 /** [express ()] creates an instance of the App class.
      Alias for [App.make ()] */
@@ -415,21 +436,25 @@ module Static: {
   type options;
   type stat;
   let defaultOptions: unit => options;
-  [@bs.set] external dotfiles: (options, string) => unit = "dotfiles";
-  [@bs.set] external etag: (options, bool) => unit = "etag";
-  [@bs.set] external extensions: (options, array(string)) => unit = "extensions";
-  [@bs.set] external fallthrough: (options, bool) => unit = "fallthrough";
-  [@bs.set] external immutable: (options, bool) => unit = "immutable";
-  [@bs.set] external indexBool: (options, bool) => unit = "index";
-  [@bs.set] external indexString: (options, string) => unit = "index";
-  [@bs.set] external lastModified: (options, bool) => unit = "lastModified";
-  [@bs.set] external maxAge: (options, int) => unit = "maxAge";
-  [@bs.set] external redirect: (options, bool) => unit = "redirect";
-  [@bs.set] external setHeaders: (options, (Request.t, string, stat) => unit) => unit = "setHeaders";
+  [@mel.set] external dotfiles: (options, string) => unit = "dotfiles";
+  [@mel.set] external etag: (options, bool) => unit = "etag";
+  [@mel.set]
+  external extensions: (options, array(string)) => unit = "extensions";
+  [@mel.set] external fallthrough: (options, bool) => unit = "fallthrough";
+  [@mel.set] external immutable: (options, bool) => unit = "immutable";
+  [@mel.set] external indexBool: (options, bool) => unit = "index";
+  [@mel.set] external indexString: (options, string) => unit = "index";
+  [@mel.set] external lastModified: (options, bool) => unit = "lastModified";
+  [@mel.set] external maxAge: (options, int) => unit = "maxAge";
+  [@mel.set] external redirect: (options, bool) => unit = "redirect";
+  [@mel.set]
+  external setHeaders: (options, (Request.t, string, stat) => unit) => unit =
+    "setHeaders";
   type t;
 
   /** [make directory] creates a static middleware for [directory] */
-  [@bs.module "express"] external make: (string, options) => t = "static";
+  [@mel.module "express"]
+  external make: (string, options) => t = "static";
 
   /** [asMiddleware static] casts [static] to a Middleware type */
   external asMiddleware: t => Middleware.t = "%identity";

@@ -1,0 +1,8 @@
+(library
+ (name bsExpress)
+ (public_name bs-express)
+ (wrapped false)
+ (libraries melange-json melange.node)
+ (modes melange)
+ (preprocess
+  (pps melange.ppx)))
