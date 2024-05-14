@@ -12,33 +12,29 @@ help: ## Print this help message
 	@echo "";
 
 .PHONY: nuke
-nuke: ## Delete all artifacts including the local switch
+nuke: ## Delete all files that will be generated
+	rm -f $(project_name).opam
 	rm -rf node_modules
 	rm -rf _opam
 	rm -rf _build
-	rm -f bs-express.opam
-	
+
 .PHONY: create-switch
 create-switch: ## Create opam switch
-	opam switch create . -y --deps-only --no-install --packages=dune
+	opam switch create . -y --deps-only --no-install --packages=dune,ocamlformat,ocaml-lsp-server,ocaml-base-compiler
 
 .PHONY: init
 init: create-switch install ## Configure everything to develop this repository in local
 
-.PHONY: install
-install: ## Install development dependencies
+.PHONY: generate-opam
+generate-opam: ## Generate the opam file
 	$(DUNE) build $(project_name).opam
-	yarn install ## install JavaScript packages that the project might depend on, like `react` or `react-dom`
-	opam update ## make sure that opam has the latest information about published libraries in the opam repository https://opam.ocaml.org/packages/
-	opam install -y . --deps-only --with-test ## install the Melange and OCaml dependencies
-	opam exec opam-check-npm-deps ## check that the versions of the JavaScript packages installed match the requirements defined by Melange libraries
 
-.PHONY: install-ci
-install-ci: ## Install development dependencies
-	yarn install ## install JavaScript packages that the project might depend on, like `react` or `react-dom`
-	opam update ## make sure that opam has the latest information about published libraries in the opam repository https://opam.ocaml.org/packages/
-	opam install -y . --deps-only --with-test ## install the Melange and OCaml dependencies
-	opam exec opam-check-npm-deps ## check that the versions of the JavaScript packages installed match the requirements defined by Melange libraries
+.PHONY: install
+install: generate-opam ## Install development dependencies
+	yarn install
+	opam update
+	opam install -y . --deps-only --with-test 
+	opam exec opam-check-npm-deps
 
 .PHONY: build
 build: ## Build the project
@@ -48,17 +44,13 @@ build: ## Build the project
 watch: ## Watch for the filesystem and rebuild on every change
 	$(DUNE) build --watch
 
+.PHONY: test
+test: 
+	yarn test
+
 .PHONY: clean
 clean: ## Clean build artifacts and other generated files
 	$(DUNE) clean
-
-.PHONY: test
-test:
-	yarn test
-
-.PHONY: test-coverage
-test-coverage:
-	yarn test --coverage
 
 .PHONY: format
 format: ## Format the codebase with ocamlformat

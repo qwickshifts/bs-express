@@ -420,7 +420,7 @@ module App: {
       t,
       ~port: int=?,
       ~hostname: string=?,
-      ~onListen: Js.null_undefined(Js.Exn.t) => unit=?,
+      ~onListen: Js.nullable(Js.Exn.t) => unit=?,
       unit
     ) =>
     HttpServer.t;

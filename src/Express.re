@@ -52,7 +52,7 @@ module Request = {
     };
   let decodeStringDict = json =>
     Js.Json.decodeObject(json)
-    |> Js.Option.andThen((. obj) => {
+    |> Stdlib.Option.map(obj => {
          let source: Js.Dict.t(string) = Obj.magic(obj);
          let allStrings =
            Js.Dict.values(source)
@@ -65,7 +65,12 @@ module Request = {
          } else {
            None;
          };
-       });
+       })
+    |> (
+      fun
+      | Some(x) => x
+      | None => None
+    );
   let bodyURLEncoded: t => option(Js.Dict.t(string)) =
     req => {
       let body: Js.Json.t = body_(req);
@@ -289,7 +294,9 @@ module Response = {
     let result = toDict(obj);
     result
     |> Js.Dict.entries
-    |> Js.Array.filter(((_key, value)) => !Js.Nullable.isNullable(value))
+    |> Js.Array.filter(~f=((_key, value)) =>
+         !Js.Nullable.isNullable(value)
+       )
     |> Js.Dict.fromArray;
   };
   let cookie =
@@ -317,7 +324,7 @@ module Response = {
         "secure": secure |> Js.Nullable.fromOption,
         "sameSite":
           sameSite
-          |> Js.Option.map((. x) => sameSiteToJs(x))
+          |> Stdlib.Option.map(x => sameSiteToJs(x))
           |> Js.Nullable.fromOption,
         "signed": signed |> Js.Nullable.fromOption,
         "domain": domain |> Js.Nullable.fromOption,
@@ -347,7 +354,7 @@ module Response = {
         "secure": secure |> Js.Nullable.fromOption,
         "sameSite":
           sameSite
-          |> Js.Option.map((. x) => sameSiteToJs(x))
+          |> Stdlib.Option.map(x => sameSiteToJs(x))
           |> Js.Nullable.fromOption,
         "signed": signed |> Js.Nullable.fromOption,
       }
@@ -698,12 +705,7 @@ module App = {
   /*** [asMiddleware app] casts an App instance to a Middleware type */
   [@mel.send]
   external listen_:
-    (
-      t,
-      int,
-      string,
-      [@mel.uncurry] (Js.Null_undefined.t(Js.Exn.t) => unit)
-    ) =>
+    (t, int, string, [@mel.uncurry] (Js.Nullable.t(Js.Exn.t) => unit)) =>
     HttpServer.t =
     "listen";
   let listen = (app, ~port=3000, ~hostname="0.0.0.0", ~onListen=_ => (), ()) =>
